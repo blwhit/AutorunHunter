@@ -179,7 +179,13 @@ if (-not $CSV -and -not $XML -and -not $Console) {
 }
 
 try {
-    $resolvedArch = if ($Arch) { $Arch } else { Detect-Architecture }
+    # Try to detect architecture if not passed explicitly
+    $resolvedArch = if ($Arch) { 
+        $Arch 
+    } else { 
+        Detect-Architecture 
+    }
+
     $exePath = Extract-AutorunsExe -arch $resolvedArch
 
     Write-VerboseLog "Running autorunsc to enumerate autoruns..."
