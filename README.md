@@ -27,7 +27,7 @@ Features:
   -Include    Comma-separated strings to add to known bad list
   -Whitelist  Key/value pairs to add to global whitelist ("Value" = "Field")
   -Console    Show suspicious entries in colored console output
-  -CSV        Export suspicious entries to CSV in the temp folder
+  -CSV        Export suspicious entries to CSV in the specified path or default folder
   -XML        Export suspicious entries to Excel (.xlsx) via COM automation
   -Open       Open the exported file(s) after creation
   -All        Return all entries, disables filtering
