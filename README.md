@@ -26,3 +26,14 @@ Hunting suspicious and malicious autoruns, looking for malware persistence.
   .\AutorunHunter.ps1 -Include "rundll32,mshta" -Verbose -CSV
   .\AutorunHunter.ps1 -Whitelist @{ "Custom Corp" = "Signer"; "Example Inc" = "Entry" } -CSV
 ```
+------------------------------------
+Remote Usage:
+```powershell
+Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blwhit/AutorunHunter/refs/heads/main/AutorunHunter.ps1" -UseBasicP).Content;
+```
+With Arguments:
+```powershell
+$script = Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blwhit/AutorunHunter/refs/heads/main/AutorunHunter.ps1" -UseBasicP
+$arguments = '-Include "rundll32,mshta" -Whitelist @{ "Custom Corp" = "Signer"; "Example Inc" = "Entry" } -CSV'
+Invoke-Expression "$script.Content $arguments"
+```
