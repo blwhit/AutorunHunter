@@ -38,6 +38,7 @@ Features:
   .\AutorunHunter.ps1 -CSV -Console
   .\AutorunHunter.ps1 -Include "rundll32,mshta" -Verbose -CSV
   .\AutorunHunter.ps1 -Whitelist @{ "Custom Corp" = "Signer"; "Example Inc" = "Entry" } -CSV
+
 ```
 ------------------------------------
 Remote Usage:
