@@ -161,7 +161,7 @@ function ColorWrite-Suspicious {
 }
 
 function Check-AdminPrivilege {
-    Write-Host "`n[ Autorun Hunter ]`n[ github.com\blwhit ]`n"
+    Write-Host "`n[ AutorunHunter.ps1 ]`n[ github.com/blwhit/AutorunHunter ]`n"
     if (([System.Security.Principal.WindowsIdentity]::GetCurrent().Groups -match 'S-1-5-32-544')) {
         Write-Host "- Running as admin " -ForegroundColor Yellow
     }
