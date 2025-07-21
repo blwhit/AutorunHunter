@@ -49,5 +49,5 @@ With Arguments:
 ```powershell
 $scriptContent = (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/blwhit/AutorunHunter/refs/heads/main/AutorunHunter.ps1' -UseBasicParsing).Content
 $scriptBlock = [ScriptBlock]::Create($scriptContent)
-& $scriptBlock -CSV
+& $scriptBlock -CSV   # <---- Arguments
 ```
