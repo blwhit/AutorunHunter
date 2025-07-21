@@ -48,5 +48,5 @@ Invoke-Expression (Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blw
 With Arguments:
 ```powershell
 $arguments = '-CSV'
-Invoke-Command -ScriptBlock [scriptblock]::Create((Invoke-WebRequest -Uri "https://raw.githubusercontent.com/blwhit/AutorunHunter/refs/heads/main/AutorunHunter.ps1" -UseBasicP).Content) -ArgumentList $arguments
+Invoke-Expression "$((Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/blwhit/AutorunHunter/refs/heads/main/AutorunHunter.ps1' -UseBasicP).Content) $arguments"
 ```
