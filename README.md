@@ -1,7 +1,20 @@
 # AutorunHunter
-Hunting suspicious and malicious autoruns, looking for malware persistence.
+Hunt suspicious autoruns and potential malware footholds/persistence.
 
 ---------------------
+PowerShell script that utilizes the Sysinternals Autoruns embedded executable to enumerate and filter autorun entries.
+
+It flags suspicious entries based on:
+- Unverified, Revoked, or Missing Signatures
+- Known Suspicious Keywords commonly used in malware persistence techniques
+
+Features:
+- Export Results: Save findings as CSV, Excel, or display them in the Console
+- Custom IOC Search: Add custom strings for detecting known Indicators of Compromise (IOCs)
+- Whitelisting: Exclude trusted entries with customizable whitelists
+
+
+-------------------------
 ```
 [ Synopsis ]
 
