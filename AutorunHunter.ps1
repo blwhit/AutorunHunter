@@ -1,6 +1,5 @@
 [CmdletBinding()]
 param (
-    [ValidateSet("x86", "x64", "x64a")]
     [string]$Arch,
 
     [switch]$CSV,
