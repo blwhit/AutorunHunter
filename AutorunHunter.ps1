@@ -608,15 +608,21 @@ $orderedProps = $baseProps + $otherProps
 $outputEntries = $outputEntries | Select-Object $orderedProps
 
 $timestamp = (Get-Date -Format 'yyyy-MM-dd_HHmmss')
-
+# Check if user wants to use a custom path for CSV export
 if ($CSV) {
-    $csvFile = Join-Path $env:TEMP "AutorunHunter_Suspicious-$timestamp.csv"
+    if ($CSVPath) {
+        $csvFile = $CSVPath
+    } else {
+        $csvFile = Join-Path $env:TEMP "AutorunHunter_Suspicious-$timestamp.csv"
+    }
+
     $outputEntries | Export-Csv -Path $csvFile -NoTypeInformation -Force
     Write-Host "`n[+] Suspicious entries exported to CSV: $csvFile" -ForegroundColor Green
     if ($Open) {
         Start-Process -FilePath "explorer.exe" -ArgumentList $csvFile
     }
 }
+
 
 if ($XML) {
     $excelPath = Find-ExcelPath
