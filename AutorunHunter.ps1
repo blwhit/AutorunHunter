@@ -233,253 +233,193 @@ foreach ($row in $data) {
     $row | Add-Member -NotePropertyName Hostname -NotePropertyValue $env:COMPUTERNAME -Force
 }
 
+# Refined malware persistence and execution detection strings
 $KnownBadStrings = @(
-    "\Windows\System32\Tasks", # Common directory for scheduled tasks [from article]
-    "\Windows\System32\Explorer\ShellServiceObjectDelayLoad", # Registry path in article
-    "C:\ProgramData\\.*\.exe", # Common location for executable files related to persistence
-    "\Microsoft\Internet Explorer\Quick Launch\", # Suspicious path
-    "\Users\Public\", # Often abused for persistence
-    "winupdate.exe", # Malicious filename
-    "services32.exe", # Malicious filename
-    "winlogon32.exe", # Malicious filename
-    "system32.dll", # Malicious filename outside of System32
-    "svch0st.exe", # Common malicious filename [from article]
-    "svchost.dll", # Common malicious filename [from article]
-    "svchosts.exe", # Common malicious filename [from article]
-    "winsvr.exe", # Malicious filename [from article]
-    "ntshrui.dll", # Suspicious file [from article]
-    "mspk.sys", # Suspicious file [from article]
-    "noise0", # Suspicious file [from article]
-    "tabcteng.dll", # Malicious file [from article]
-    "aw.exe", # Agent Tesla [from article]
-    "llehS|2e|tpircSW", # AZORult [from article]
-    "si_.cb", # Qakbot file [from article]
-    "MOUSEISLAND", # TrickBot file [from article]
-    "Packinglist-Invoice101.pps", # NanoCore [from article]
-    "Filenames ending in .bin", # Ursnif [from article]
-    "PowerView.ps1", # PowerShell tool for enumeration
-    "PSReflect.psm1", # PowerShell script reflection
-    "Mimikatz", # Credential dumping tool
-    "PSEXESVC-", # Malicious file related to PSEXEC
-    "evil.exe", # Suspicious filename
-    "\KAPE_cases\", # Mimics legitimate tool, suspicious usage
-    "\Volatility\", # Mimics legitimate tool, suspicious usage
-    "\Kansa\", # Mimics legitimate tool, suspicious usage
-    "\FastIR\", # Mimics legitimate tool, suspicious usage
-    "\Temp\SomeMFT", # MFT analysis or malicious data
-    "C:\evtx_compromised_machine", # Malicious event log directory
-    "\Prefetch\[Tool name].exe-RANDOM.pf", # Prefetch file for malicious tools
-    "\AppData\",
-    "\AppData\Roaming\",
-    "\AppData\Local\Temp\",
-    "\Temp\",
-    "\tmp\",
-    "\Recycle.Bin\",
-    "ecycle.Bin\",
-    "\Windows\Temp\",
-    "\Windows\Tasks\",
-    "\Windows\Fonts\",
-    "\Windows\debug\",
-    "\Windows\help\",
-    "\System Volume Information\",
-    ".tmp.exe",
-    ".dat.exe",
-    ".log.exe",
-    ".jpg.exe",
-    ".png.exe",
-    ".scr",
-    ".pif",
-    ".bat",
-    ".vbs",
-    ".cmd",
-    ".ps1",
-    ".psm1",
-    "qwoptyx.exe",
-    "abc123.exe",
-    "a1b2c3.dll",
-    "svch0st", # Zero instead of 'o'
-    "wind0ws", # Zero instead of 'o'
-    "AppInit_DLLs",
-    "LoadAppInit_DLLs",
-    "client32.exe", #NetSupport RAT
-    "AnyDesk",
-    "XMRig",
+    # === SUSPICIOUS FILE LOCATIONS ===
+    "\\Users\\Public\\",
+    "\\Windows\\Temp\\",
+    "\\AppData\\Local\\Temp\\",
+    "\\AppData\\Roaming\\",
+    "\\ProgramData\\",
+    "\\Windows\\Tasks\\",
+    "\\Windows\\debug\\",
+    "\\Recycle.Bin\\",
+
+    # Known Malware Strings, Known PUA
+    "client32.exe",
     "client32.ini",
-    "teamviewer",
-    "PCAppStore",
-    "Connectwise",
-    "screenconnect",
-    "atera",
-    "sc create", # Create a service (often used for persistence) [from article]
-    "sc config", # Configuring a service for persistence [from article]
-    "binPath=", # Suspicious service path argument [from article]
-    "start= auto", # Auto-start services for persistence [from article]
-    "failure, actions= restart", # Service failure persistence [from article]
-    "schtasks /create", # Creating scheduled tasks [from article]
-    "schtasks /delete", # Deleting scheduled tasks (abusing task scheduler) [from article]
-    "schtasks /change", # Changing scheduled tasks [from article]
-    "/sc minute", # Scheduling recurring tasks [from article]
-    "/sc hourly", # Scheduling recurring tasks [from article]
-    "/sc daily", # Scheduling recurring tasks [from article]
-    "/sc onlogon", # Logon-based execution [from article]
-    "/sc onstart", # Startup-based execution [from article]
-    "/tn", # Task name argument for scheduled tasks [from article]
-    "/tr", # Task run argument for scheduled tasks [from article]
-    "/ru", # Task run as user [from article]
-    "/rp", # Task run with password [from article]
-    "/vbr", # Task parameters for scheduled tasks [from article]
-    "reg add", # Adding registry entries for persistence [from article]
-    "reg delete", # Deleting registry entries [from article]
-    "/t REG_SZ", # Registry type argument [from article]
-    "/t REG_DWORD", # Registry type argument [from article]
-    # "HKLM\Software\Microsoft\Windows\CurrentVersion\Run", # Registry key for autostart [from article]
-    # "HKCU\Software\Microsoft\Windows\CurrentVersion\Run", # Registry key for autostart [from article]
-    # "HKLM\Software\Microsoft\Windows\CurrentVersion\RunOnce", # Registry key for autostart [from article]
-    # "HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce", # Registry key for autostart [from article]
-    # "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", # Suspicious registry key [from article]
-    # "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders", # Suspicious registry key [from article]
-    # "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Userinit", # Userinit persistence registry [from article]
-    # "HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon\AppInit_DLLs", # AppInit DLL persistence [from article]
-    "powershell -ExecutionPolicy Bypass", # PowerShell execution policy bypass [from article]
-    "powershell -WindowStyle Hidden", # Hide PowerShell window [from article]
-    "powershell -NoProfile", # Run PowerShell without profile [from article]
-    "wscript", # Windows Script Host execution [from article]
-    "cscript", # Windows Script Host execution [from article]
-    "cmd /c start /b", # Background execution [from article]
-    "net use", # Network share command [from article]
-    "nc -e", # Netcat reverse shell [from article]
-    "ncat", # Netcat alternative [from article]
-    "curl .*\|iex", # Download and execute via curl [from article]
-    "wget .*\|iex", # Download and execute via wget [from article]
-    "@SSL\\DavWWWRoot\\.*\.ps1", # WebDAV location [from article]
-    "powershell -EncodedCommand", # PowerShell base64 encoded command [from article]
-    "powershell -e", # PowerShell execution [from article]
-    "hidden \$\(gc ", # Obfuscated PowerShell command [from article]
-    "\[char\[]\]\(.*\)\-join", # Array manipulation (obfuscation) [from article]
-    "=wscri\& set", # JScript execution [from article]
-    "iex\(", # Invoke-Expression abbreviation [from article]
-    "iwr ", # Invoke-WebRequest abbreviation [from article]
-    "Invoke-WebRequest ", # Download content [from article]
-    "Invoke-Expression", # PowerShell expression execution [from article]
-    "Invoke-Expression.*FromBase64String", # PowerShell command obfuscation [from article]
-    "Base64", # Base64 encoded payload [from article]
-    "mshta", # Microsoft HTML Application (often used for obfuscation) [from article]
-    "-nop", # No profile (PowerShell execution) [from article]
-    "-NoProfile", # No profile (PowerShell execution) [from article]
-    "-W Hidden", # Hide window [from article]
-    "-WindowStyle Hidden", # Hide window [from article]
-    "-ExecutionPolicy Bypass", # Bypass execution policy [from article]
-    "-NonInteractive", # Non-interactive PowerShell session [from article]
-    "-Command ", # Run PowerShell command [from article]
-    "(New-Object System.Net.Webclient).DownloadString", # Download string [from article]
-    "(New-Object System.Net.Webclient).DownloadFile", # Download file [from article]
-    "iex\(", # Invoke-Expression abbreviation [from article]
-    "curl .*\|iex", # Download and execute via curl [from article]
-    "wget .*\|iex", # Download and execute via wget [from article]
-    "http'+'s://", # URL obfuscation [from article]
-    "//:sptth", # Obfuscated HTTP(s) [from article]
-    "//:ptth", # Obfuscated HTTP(s) [from article]
-    "add .*AppInit_DLLs",
-    "delete .*AppInit_DLLs",
-    "LoadAppInit_DLLs.*1",
-    "localgroup administrators .* /add",
-    "administrators",
-    ".*\\Run",
-    ".*\\RunOnce",
-    "script:http",
-    "script:https",
-    "-EncodedCommand",
-    "-e ",
-    "/background",
-    "/silent",
-    "http",
-    ".*https", # Added https for completeness
-    ".*download",
-    ".*javascript",
-    "CreateServiceW",
-    "Write.*\.exe",
-    "Write.*\.dll",
-    "/create .*",
-    "/change .*",
-    "call create .*",
-    ".*IEX",
-    ".*Invoke-Expression", # Added full form [3]
-    ".*FromBase64String",
-    "/transfer",
-    "/c start .*",
-    "/c copy .*",
-    "Base64",
-    "-enc",
-    "mshta",
-    "hidden",
+    "xmrig",
+    "onestart",
+    
+    # === MASQUERADING EXECUTABLES (Common typos/variations) ===
+    "svch0st\.exe",          # Zero instead of O
+    "svchost\.dll",          # Wrong extension
+    "svchosts\.exe",         # Plural
+    "csrss\.dll",            # Wrong extension
+    "winl0gon\.exe",         # Zero instead of O
+    "lsas\.exe",             # Missing 's'
+    "smss\.dll",             # Wrong extension
+    "explorer\.dll",         # Wrong extension
+    "dwm\.dll",              # Wrong extension
+    
+    # === DOUBLE EXTENSIONS (File masquerading) ===
+    ".jpg.exe",
+    ".png.exe", 
+    ".pdf.exe",
+    ".doc.exe",
+    ".docx.exe",
+    ".txt.exe",
+    ".zip.exe",
+    ".jpg.scr",
+    ".png.scr",
+    ".pdf.scr",
+    
+    # === REGISTRY PERSISTENCE KEYS ===
+    "\\Run\\",
+    "\\RunOnce\\", 
+    "\\Winlogon\\Userinit",
+    "\\Winlogon\\Shell",
+    "\\AppInit_DLLs",
+    "\\LoadAppInit_DLLs",
+    "\\Image File Execution Options\\",
+    "\\Windows\\AppInit_DLLs",
+    "\\Environment\\UserInitMprLogonScript",
+    "\\BootExecute",
+    
+    # === SERVICE PERSISTENCE COMMANDS ===
+    "sc create",
+    "sc config", 
+    "binPath=",
+    "start=auto",
+    "New-Service",
+    "BinaryPathName",
+    "Set-Service",
+    "StartupType Automatic",
+    
+    # === SCHEDULED TASK PERSISTENCE ===
+    "schtasks /create",
+    "Register-ScheduledTask",
+    "/sc onlogon",
+    "/sc onstart",
+    "/sc onidle", 
+    "/sc minute",
+    "/sc daily",
+    "/ru system",
+    "/ru \"nt authority\\system\"",
+    
+    # === WMI PERSISTENCE ===
+    "wmic.*process call create",
+    "New-CimInstance.*Win32_Process",
+    "Invoke-WmiMethod.*Win32_Process",
+    "__EventFilter",
+    "__EventConsumer",
+    "__FilterToConsumerBinding",
+    "ActiveScriptEventConsumer",
+    
+    # === POWERSHELL OBFUSCATION & EXECUTION ===
+    "-ExecutionPolicy Bypass",
+    "-ep bypass",
+    "-ex bypass", 
+    "-WindowStyle Hidden",
+    "-w hidden",
+    "-NoProfile",
     "-nop",
-    "-NoProfile", # Ignore profile commands [3, 4]
-    "-W Hidden", # Hide command window [3]
-    "-WindowStyle Hidden", # Hide command window [3, 4]
-    "-Exec bypass", # Bypass execution policy [3, 4]
-    "-ExecutionPolicy Bypass", # Bypass execution policy [3, 4]
-    "-NonI", # Non-interactive [3, 4]
-    "-NonInteractive", # Non-interactive [3, 4]
-    "-C ", # Run a single command [3]
-    "-Command ", # Run a single command [3, 4]
-    "-File ", # Run from a file [3]
-    "(New-Object System.Net.Webclient).DownloadString", # Download content [3]
-    "(New-Object System.Net.Webclient).DownloadFile", # Download file [3]
-    "iex\(", # Invoke-Expression abbreviation [3]
-    "iwr ", # Invoke-WebRequest abbreviation [5]
-    "Invoke-WebRequest ", # Download content [5]
-    "Reflection.Assembly", # Load assemblies [5]
-    "Assembly.GetType", # Get type from assembly [5]
-    "env:temp\\.*\.exe", # Executable in temp [5]
-    "powercat", # Netcat alternative in PowerShell [5]
-    "Net.Sockets.TCPClient", # Network socket operations [5]
-    "curl .*\|iex", # Download and execute via curl [5]
-    "wget .*\|iex", # Download and execute via wget (if available)
-    "@SSL\\DavWWWRoot\\.*\.ps1", # Potential webdav location [5]
-    "\[char\[]\]\(.*\)\-join", # Char array manipulation (obfuscation) [5]
-    "\[Array\]::Reverse", # Array reversal (obfuscation) [5]
-    "hidden \$\(gc ", # Hidden get-content (obfuscation) [5]
-    "=wscri\& set", # JScript and set command [5]
-    "http'+'s://", # String concatenation to hide URL [5]
-    "\.content\|i''Ex", # String manipulation and Invoke-Expression [5]
-    "//:sptth", # Obfuscated http(s) [5]
-    "//:ptth", # Obfuscated http(s) [5]
-    "\$\*=Get-Content.*AppData.*\.SubString", # String manipulation from AppData [5]
-    "=cat .*AppData.*\.substring", # String manipulation from AppData [5]
-    "-Outfile .*Start.*", # Writing to a file and starting it [5]
-    "-bxor 0x", # XOR operation (obfuscation) [5]
-    "\$\*\$\*;set-alias", # Alias creation (obfuscation) [5]
-    "-ep bypass", # Execution Policy Bypass [4]
-    "-ex bypass", # Execution Policy Bypass [4]
-    "-exe bypass", # Execution Policy Bypass [4]
-    "-exec bypass", # Execution Policy Bypass [4]
-    "-execu bypass", # Execution Policy Bypass [4]
-    "-execut bypass", # Execution Policy Bypass [4]
-    "-executi bypass", # Execution Policy Bypass [4]
-    "-executio bypass", # Execution Policy Bypass [4]
-    "-executionp ", # Partial ExecutionPolicy [4]
-    "-executionpo ", # Partial ExecutionPolicy [4]
-    "-executionpol ", # Partial ExecutionPolicy [4]
-    "-executionpoli ", # Partial ExecutionPolicy [4]
-    "-executionpolic ", # Partial ExecutionPolicy [4]
-    "/NoPr ", # NoProfile [4]
-    "/NoPro ", # NoProfile [4]
-    "/NoProf ", # NoProfile [4]
-    "/NoProfi ", # NoProfile [4]
-    "/NoProfil ", # NoProfile [4]
-    "/wi h", # Window Hidden [4]
-    "/win h ", # Window Hidden [4]
-    "/win hi ", # Window Hidden [4]
-    "/win hid ", # Window Hidden [4]
-    "/win hidd ", # Window Hidden [4]
-    "/win hidde ", # Window Hidden [4]
-    "/wind h", # Window Hidden [4]
-    "/windo h", # Window Hidden [4]
-    "/windows h", # Window Hidden [4]
-    "/windowst h", # Window Hidden [4]
-    "/windowsty h", # Window Hidden [4]
-    "/windowstyl h", # Window Hidden [4]
-    "/windowstyle h " # Window Hidden [4]
+    "-NonInteractive",
+    "-noni",
+    "-EncodedCommand",
+    "-enc",
+    "-e ",
+    "powershell iex",
+    "powershell invoke-expression",
+    "FromBase64String",
+    "System.Convert]::FromBase64String",
+    "iex (new-object",
+    "downloadstring",
+    "iex (iwr",
+    "invoke-expression downloadstring",
+    "[char[]]",
+    "[array]::reverse",
+    
+    # === DOWNLOAD & EXECUTE PATTERNS ===
+    "(new-object webclient).downloadfile",
+    "(new-object webclient).downloadstring", 
+    "invoke-webrequest -outfile",
+    "iwr -outfile",
+    "certutil -urlcache -split -f",
+    "bitsadmin /transfer",
+    "Start-BitsTransfer",
+    "|iex",
+    
+    # === FILELESS & LIVING OFF THE LAND ===
+    "mshta http",
+    "mshta javascript:",
+    "mshta vbscript:",
+    "rundll32 javascript:",
+    "rundll32 advpack.dll",
+    "rundll32 ieadvpack.dll", 
+    "rundll32 mshtml.dll",
+    "regsvr32 /s /n /u /i:http",
+    "regsvr32 scrobj.dll",
+    "wmic format: http",
+    "forfiles /c cmd",
+    "cscript /b",
+    "wscript /b",
+    
+    # === ANTI-ANALYSIS & EVASION ===
+    "taskkill /f /im taskmgr",
+    "taskkill /f /im procmon",
+    "taskkill /f /im wireshark",
+    "DisableTaskMgr",
+    "DisableRegistryTools", 
+    "netsh firewall add portopening",
+    "netsh advfirewall add rule",
+    "vssadmin delete shadows",
+    "wbadmin delete catalog",
+    "bcdedit /set recoveryenabled no",
+    
+    # === CREDENTIAL ACCESS ===
+    "mimikatz",
+    "sekurlsa::logonpasswords",
+    "privilege::debug",
+    "procdump.*lsass",
+    "lsass\.dmp",
+    "reg save.*sam",
+    "reg save.*security",
+    "reg save.*system",
+    "ntdsutil.*snapshot",
+    
+    # === LATERAL MOVEMENT ===
+    "psexec \\\\ -s",
+    "wmic /node: process call create",
+    "Invoke-Command -ComputerName", 
+    "New-PSSession -ComputerName",
+    "Enter-PSSession -ComputerName",
+    "net use \\\\ \\c$",
+    
+    # === COMMON MALWARE FAMILIES (Specific indicators) ===
+    "powershell -windowstyle hidden -encodedcommand",
+    "cmd /c echo",
+    "timeout /t 5 /nobreak >nul",
+    "ping -n 5 127.0.0.1 >nul",
+    "del /f /q %0",
+    "attrib +h +s",
+    
+    # === PERSISTENCE VIA STARTUP FOLDERS ===
+    "\\Programs\\Startup\\",
+    "\\Programs\\StartUp\\",
+    
+    # === COMMON RAT/BACKDOOR INDICATORS ===
+    "anydesk --silent",
+    "teamviewer /S",
+    "chrome-remote-desktop",
+    "netcat -l -p -e",
+    "ncat -l -p -e", 
+    "powercat -l -p",
+    
+    # === SUSPICIOUS NETWORK ACTIVITY ===
+    "netsh interface portproxy",
+    "netsh portproxy v4tov4",
+    "netsh winhttp set proxy"
 )
 
 
