@@ -250,7 +250,6 @@ $KnownBadStrings = @(
     "client32.ini",
     "xmrig",
     "onestart",
-    "PDF",
     "update.js",
     
     # === MASQUERADING EXECUTABLES (Common typos/variations) ===
