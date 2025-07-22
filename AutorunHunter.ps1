@@ -250,6 +250,8 @@ $KnownBadStrings = @(
     "client32.ini",
     "xmrig",
     "onestart",
+    "PDF",
+    "update.js",
     
     # === MASQUERADING EXECUTABLES (Common typos/variations) ===
     "svch0st\.exe",          # Zero instead of O
@@ -305,7 +307,6 @@ $KnownBadStrings = @(
     "/sc minute",
     "/sc daily",
     "/ru system",
-    "/ru \"nt authority\\system\"",
     
     # === WMI PERSISTENCE ===
     "wmic.*process call create",
