@@ -2,7 +2,7 @@
 param (
     [string]$Arch,
 
-    [switch]$CSV,
+    [string]$CSV,
     [switch]$XML,
     [switch]$Open,
 
@@ -610,12 +610,14 @@ $outputEntries = $outputEntries | Select-Object $orderedProps
 $timestamp = (Get-Date -Format 'yyyy-MM-dd_HHmmss')
 # Check if user wants to use a custom path for CSV export
 if ($CSV) {
-    if ($CSVPath) {
-        $csvFile = $CSVPath
-    } else {
+    if ([string]::IsNullOrWhiteSpace($CSV)) {
+        # CSV switch was used but no path provided, use default
         $csvFile = Join-Path $env:TEMP "AutorunHunter_Suspicious-$timestamp.csv"
+    } else {
+        # Use the provided path
+        $csvFile = $CSV
     }
-
+    
     $outputEntries | Export-Csv -Path $csvFile -NoTypeInformation -Force
     Write-Host "`n[+] Suspicious entries exported to CSV: $csvFile" -ForegroundColor Green
     if ($Open) {
